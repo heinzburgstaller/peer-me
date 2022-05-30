@@ -1,0 +1,25 @@
+.message {
+  font-family: "Courier New", serif;
+  font-size: larger;
+  font-weight: 700;
+}
+
+.sender {
+  margin-left: 20px;
+  font-size: smaller;
+  font-family: monospace;
+}
+
+.date {
+  margin-left: 20px;
+  font-size: small;
+}
+
+.incoming {
+  color: red;
+  font-size: x-large;
+}
+
+span.owner {
+  color: green;
+}
