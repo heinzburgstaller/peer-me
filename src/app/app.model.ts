@@ -1,5 +1,5 @@
 export interface Message {
-  message: string;
-  sender: string;
-  timestamp: string;
+  readonly message: string;
+  readonly sender: string;
+  readonly timestamp: string;
 }

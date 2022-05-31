@@ -7,23 +7,27 @@ import { selectLocalPeerId, selectMessages, selectPeers } from './app.selector';
 import { AppState } from './app.state';
 
 interface MessageUI extends Message {
-  owner: boolean;
+  readonly owner: boolean;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppFacade {
-  readonly messages$ = combineLatest([this.store.select(selectLocalPeerId), this.store.select(selectMessages)])
-    .pipe(
-      map(([peerId, messages]) => {
-        return messages.map(m => {
-          return {message: m.message, sender: m.sender, timestamp: m.timestamp, owner: peerId === m.sender};
-        });
-      }),
-    );
   peerId$ = this.store.select(selectLocalPeerId);
   peers$ = this.store.select(selectPeers);
+  readonly messages$ = combineLatest([this.peerId$, this.store.select(selectMessages)])
+    .pipe(
+      map(([peerId, messages]) =>
+        messages.map(m =>
+          ({
+            message: m.message,
+            sender: m.sender,
+            timestamp: m.timestamp,
+            owner: peerId === m.sender,
+          } as MessageUI))),
+    );
+
 
   constructor(private store: Store<AppState>) {
   }
