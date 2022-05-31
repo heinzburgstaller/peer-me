@@ -1,14 +1,5 @@
 import { Component } from '@angular/core';
-import { combineLatest, map, Observable } from 'rxjs';
-import { Store } from '@ngrx/store';
-import { selectLocalPeerId, selectMessages, selectPeers } from './store/app.selector';
-import { AppState } from './store/app.state';
-import { Message } from './app.model';
-import { connectToPeer, sendMessage } from './store/app.actions';
-
-interface MessageUI extends Message {
-  owner: boolean;
-}
+import { AppFacade } from './store/app.facade';
 
 @Component({
   selector: 'app-root',
@@ -17,22 +8,15 @@ interface MessageUI extends Message {
 })
 export class AppComponent {
 
-  peerId$ = this.store.select(selectLocalPeerId);
-  peers$ = this.store.select(selectPeers);
-  messages$: Observable<MessageUI[]>;
+  peerId$ = this.facade.peerId$;
+  peers$ = this.facade.peers$;
+  messages$ = this.facade.messages$;
 
-  constructor(private store: Store<AppState>) {
-    this.messages$ = combineLatest([this.peerId$, this.store.select(selectMessages)]).pipe(
-      map(([peerId, messages]) => {
-        return messages.map(m => {
-          return {message: m.message, sender: m.sender, timestamp: m.timestamp, owner: peerId === m.sender}
-        });
-      }),
-    );
+  constructor(private readonly facade: AppFacade) {
   }
 
   connectTo(toId: string) {
-    this.store.dispatch(connectToPeer({toPeer: toId}));
+    this.facade.connectToPeer(toId);
   }
 
   onChange(event: any) {
@@ -40,7 +24,6 @@ export class AppComponent {
   }
 
   messageTo(toPeer: string, message: string) {
-    this.store.dispatch(sendMessage({toPeer, message}));
+    this.facade.sendMessage(toPeer, message);
   }
-
 }
