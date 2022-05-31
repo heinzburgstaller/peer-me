@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
-import { Message, PeerService } from './peer.service';
 import { combineLatest, map, Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { selectLocalPeerId, selectMessages, selectPeers } from './store/app.selector';
+import { AppState } from './store/app.state';
+import { Message } from './app.model';
+import { connectToPeer, sendMessage } from './store/app.actions';
 
 interface MessageUI extends Message {
   owner: boolean;
@@ -12,15 +16,13 @@ interface MessageUI extends Message {
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'peer-me';
-  selectedPeer = '';
 
-  peerId$ = this.peerService.peerIdSubject.asObservable();
-  peers$ = this.peerService.peersSubject.asObservable();
+  peerId$ = this.store.select(selectLocalPeerId);
+  peers$ = this.store.select(selectPeers);
   messages$: Observable<MessageUI[]>;
 
-  constructor(private peerService: PeerService) {
-    this.messages$ = combineLatest([this.peerId$, this.peerService.messagesSubject.asObservable()]).pipe(
+  constructor(private store: Store<AppState>) {
+    this.messages$ = combineLatest([this.peerId$, this.store.select(selectMessages)]).pipe(
       map(([peerId, messages]) => {
         return messages.map(m => {
           return {message: m.message, sender: m.sender, timestamp: m.timestamp, owner: peerId === m.sender}
@@ -30,7 +32,7 @@ export class AppComponent {
   }
 
   connectTo(toId: string) {
-    this.peerService.connect(toId);
+    this.store.dispatch(connectToPeer({toPeer: toId}));
   }
 
   onChange(event: any) {
@@ -38,7 +40,7 @@ export class AppComponent {
   }
 
   messageTo(toPeer: string, message: string) {
-    this.peerService.sendMessage(toPeer, message);
+    this.store.dispatch(sendMessage({toPeer, message}));
   }
 
 }
