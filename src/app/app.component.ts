@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { Message, PeerService } from './peer.service';
+import { PeerService } from './peer.service';
 import { combineLatest, map, Observable } from 'rxjs';
+import { Message } from './app.model';
 
 interface MessageUI extends Message {
   owner: boolean;

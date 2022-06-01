@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DataConnection, Peer } from "peerjs";
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
+import { Message } from './app.model';
 
 type PeerDataType = 'peerId' | 'message';
 
@@ -8,12 +9,6 @@ interface PeerData {
   type: PeerDataType;
   senderPeerId: string;
   message?: string;
-}
-
-export interface Message {
-  message: string;
-  sender: string;
-  timestamp: string;
 }
 
 @Injectable({
