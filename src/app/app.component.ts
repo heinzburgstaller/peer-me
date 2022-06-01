@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
+import { Message } from './app.model';
 import { AppFacade } from './store/app.facade';
+
+interface MessageUI extends Message {
+  owner: boolean;
+}
 
 @Component({
   selector: 'app-root',

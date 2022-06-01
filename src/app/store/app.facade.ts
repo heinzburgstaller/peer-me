@@ -17,15 +17,12 @@ export class AppFacade {
   peerId$ = this.store.select(selectLocalPeerId);
   peers$ = this.store.select(selectPeers);
   readonly messages$ = combineLatest([this.peerId$, this.store.select(selectMessages)])
-    .pipe(
-      map(([peerId, messages]) =>
-        messages.map(m =>
-          ({
-            message: m.message,
-            sender: m.sender,
-            timestamp: m.timestamp,
-            owner: peerId === m.sender,
-          } as MessageUI))),
+    .pipe(map(([peerId, messages]) => messages.map(m => ({
+        message: m.message,
+        sender: m.sender,
+        timestamp: m.timestamp,
+        owner: peerId === m.sender,
+      } as MessageUI))),
     );
 
 

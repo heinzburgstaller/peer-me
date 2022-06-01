@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { DataConnection, Peer } from "peerjs";
-import { Message } from './app.model';
-import { Store } from '@ngrx/store';
 import { AppState } from './store/app.state';
+import { Store } from '@ngrx/store';
 import { addMessage, addPeer, setLocalPeerId } from './store/app.actions';
+import { Message } from './app.model';
 
 type PeerDataType = 'peerId' | 'message';
 
