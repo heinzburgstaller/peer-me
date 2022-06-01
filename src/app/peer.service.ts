@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { DataConnection, Peer } from "peerjs";
-import { BehaviorSubject } from 'rxjs';
 import { Message } from './app.model';
+import { Store } from '@ngxs/store';
+import { AddMessage, AddPeer, SetLocalPeerId } from './store/app.actions';
+import { AppState } from './store/app.state';
 
 type PeerDataType = 'peerId' | 'message';
 
@@ -18,14 +20,11 @@ export class PeerService {
 
   private peer = new Peer();
   private connections = new Map<string, DataConnection>();
-  public peerIdSubject = new BehaviorSubject('');
-  public peersSubject = new BehaviorSubject([] as string[]);
-  public messagesSubject = new BehaviorSubject([] as Message[]);
 
-  constructor() {
+  constructor(private store: Store) {
     this.peer.on('open', id => {
       console.log('My peer ID is: ' + id);
-      this.peerIdSubject.next(id);
+      this.store.dispatch(new SetLocalPeerId(id));
     })
 
     this.peer.on('connection', (conn) => {
@@ -40,17 +39,20 @@ export class PeerService {
     conn.on('data', this.onData(conn));
   }
 
-  sendMessage(toPeerId: string, messageText: string) {
+  sendMessage(toPeerId: string, messageText: string): Message | undefined {
     const conn = this.connections.get(toPeerId);
-    if (conn != null) {
-      conn.send({type: 'message', senderPeerId: this.peerIdSubject.getValue(), message: messageText} as PeerData);
-      const message = {
-        message: messageText,
-        sender: this.peerIdSubject.getValue(),
-        timestamp: new Date().toISOString(),
-      } as Message;
-      this.messagesSubject.next([...this.messagesSubject.getValue(), message]);
+    const localPeerId = this.store.selectSnapshot(AppState.localPeerId);
+
+    if (conn == null) {
+      return undefined;
     }
+
+    conn.send({type: 'message', senderPeerId: localPeerId, message: messageText} as PeerData);
+    return {
+      message: messageText,
+      sender: localPeerId,
+      timestamp: new Date().toISOString(),
+    } as Message;
   }
 
   onData(conn: DataConnection): (data: unknown) => void {
@@ -65,20 +67,21 @@ export class PeerService {
     console.log(data, conn.peer);
     if (data.type === 'peerId') {
       this.connections.set(data.senderPeerId, conn);
-      this.peersSubject.next([...this.peersSubject.getValue(), data.senderPeerId]);
+      this.store.dispatch(new AddPeer(data.senderPeerId))
     } else if (data.type === 'message') {
       const message = {
         message: data.message,
         sender: data.senderPeerId,
         timestamp: new Date().toISOString(),
       } as Message;
-      this.messagesSubject.next([...this.messagesSubject.getValue(), message]);
+      this.store.dispatch(new AddMessage(message));
     }
   }
 
   private handleOpen(conn: DataConnection): () => void {
     return () => {
-      conn.send({type: 'peerId', senderPeerId: this.peerIdSubject.getValue()} as PeerData);
+      const localPeerId = this.store.selectSnapshot(AppState.localPeerId);
+      conn.send({type: 'peerId', senderPeerId: localPeerId} as PeerData);
     }
   }
 
@@ -89,6 +92,5 @@ export class PeerService {
       data.hasOwnProperty('type')
     );
   }
-
 
 }
