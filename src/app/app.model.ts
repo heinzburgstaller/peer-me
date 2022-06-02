@@ -3,3 +3,7 @@ export interface Message {
   sender: string;
   timestamp: string;
 }
+
+export interface MessageUI extends Message {
+  readonly owner: boolean;
+}
