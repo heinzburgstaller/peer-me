@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
 import { StoreModule } from '@ngrx/store';
-import { appReducer } from './store/app.reducer';
+import { coreReducer } from './store/core.reducer';
 import { EffectsModule } from '@ngrx/effects';
 import { AppEffects } from './store/app.effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
@@ -15,9 +15,9 @@ import { environment } from '../environments/environment';
   ],
   imports: [
     BrowserModule,
-    StoreModule.forRoot({app: appReducer}),
+    StoreModule.forRoot({core: coreReducer}),
     EffectsModule.forRoot([AppEffects]),
-    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
+    StoreDevtoolsModule.instrument({maxAge: 25, logOnly: environment.production}),
   ],
   providers: [],
   bootstrap: [AppComponent],

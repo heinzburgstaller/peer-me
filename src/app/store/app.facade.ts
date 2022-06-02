@@ -25,7 +25,6 @@ export class AppFacade {
       } as MessageUI))),
     );
 
-
   constructor(private store: Store<AppState>) {
   }
 

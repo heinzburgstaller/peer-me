@@ -1,20 +1,14 @@
 import { createReducer, on } from '@ngrx/store';
-import { Message } from '../app.model';
 import { addMessage, addPeer, setLocalPeerId } from './app.actions';
+import { CoreState } from './app.state';
 
-export interface State {
-  localPeerId: string;
-  messages: Message[];
-  peers: string[];
-}
-
-export const initialState: State = {
+export const initialState: CoreState = {
   localPeerId: '',
   messages: [],
   peers: [],
 };
 
-export const appReducer = createReducer(
+export const coreReducer = createReducer(
   initialState,
   on(setLocalPeerId, (state, {peerId}) => ({...state, localPeerId: peerId})),
   on(addPeer, (state, {peerId}) => ({...state, peers: [...state.peers, peerId]})),

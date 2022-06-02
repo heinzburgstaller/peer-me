@@ -1,5 +1,11 @@
-import { State } from './app.reducer';
+import { Message } from '../app.model';
+
+export interface CoreState {
+  localPeerId: string;
+  messages: Message[];
+  peers: string[];
+}
 
 export interface AppState {
-  app: State,
+  core: CoreState;
 }
