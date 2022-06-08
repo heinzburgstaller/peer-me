@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { PeerService } from './peer.service';
-import { combineLatest, map, Observable } from 'rxjs';
 import { Message } from './app.model';
+import { AppFacade } from './store/app.facade';
 
 interface MessageUI extends Message {
   owner: boolean;
@@ -13,25 +12,16 @@ interface MessageUI extends Message {
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'peer-me';
-  selectedPeer = '';
 
-  peerId$ = this.peerService.peerIdSubject.asObservable();
-  peers$ = this.peerService.peersSubject.asObservable();
-  messages$: Observable<MessageUI[]>;
+  peerId$ = this.facade.peerId$;
+  peers$ = this.facade.peers$;
+  messages$ = this.facade.messages$;
 
-  constructor(private peerService: PeerService) {
-    this.messages$ = combineLatest([this.peerId$, this.peerService.messagesSubject.asObservable()]).pipe(
-      map(([peerId, messages]) => {
-        return messages.map(m => {
-          return {message: m.message, sender: m.sender, timestamp: m.timestamp, owner: peerId === m.sender}
-        });
-      }),
-    );
+  constructor(private readonly facade: AppFacade) {
   }
 
   connectTo(toId: string) {
-    this.peerService.connect(toId);
+    this.facade.connectToPeer(toId);
   }
 
   onChange(event: any) {
@@ -39,7 +29,6 @@ export class AppComponent {
   }
 
   messageTo(toPeer: string, message: string) {
-    this.peerService.sendMessage(toPeer, message);
+    this.facade.sendMessage(toPeer, message);
   }
-
 }
